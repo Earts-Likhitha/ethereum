@@ -2,6 +2,7 @@ const bip39 = require("bip39");
 const hdkey = require("hdkey");
 const Web3 = require('web3');
 
+
 const providerURL = 'https://arbitrum-goerli.publicnode.com'; // Use the appropriate Infura URL for the Ethereum network you want to use
 const web3 = new Web3(providerURL);
 

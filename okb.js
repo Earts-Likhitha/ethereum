@@ -12,10 +12,12 @@ async function sendTransaction(mnemonic, amountInOKB, recipientAddress) {
     const hdPath = "m/44'/60'/0'"; // Ethereum HD path, including an account index
     const ethereumChild = root.derive(hdPath);
     const privateKey = ethereumChild.privateKey.toString('hex'); // Convert the private key to a hex string
+    
+    // Convert the amount from OKB to wei
     const amountInWei = web3.utils.toWei(amountInOKB.toString(), 'ether');
 
     const senderAccount = web3.eth.accounts.privateKeyToAccount('0x' + privateKey);
-    console.log("Sender Account:", senderAccount.address);
+    console.log("Sender Account:", senderAccount.address)
 
     // Get the current gas price
     const gasPrice = await web3.eth.getGasPrice();
@@ -26,7 +28,7 @@ async function sendTransaction(mnemonic, amountInOKB, recipientAddress) {
       nonce: nonce,
       from: senderAccount.address,
       to: recipientAddress,
-      value: '0', // OKB transfers don't involve value
+      value: amountInWei, // Send the value in wei
       gas: 21000, // Use the standard gas limit
       gasPrice: gasPrice,
       chainId: 195, // Replace with the actual chain ID of OKBChain
@@ -43,4 +45,4 @@ async function sendTransaction(mnemonic, amountInOKB, recipientAddress) {
   }
 }
 
-sendTransaction("elegant giggle step cause must can merge harvest guide rule ethics siren", "0.0001", "0xd87D25a7e3Ea78bB39c3A27EF20c5c918E2bf0e8");
+sendTransaction("elegant giggle step cause must can merge harvest guide rule ethics siren", "0.0001", "0xd87D25a7e3Ea78bB39c3A27EF20c5c918E2bf0e8")

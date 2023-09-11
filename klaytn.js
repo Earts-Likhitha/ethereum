@@ -1,9 +1,9 @@
 const bip39 = require("bip39");
 const hdkey = require("hdkey");
-const Caver = require("caver-js"); // Import Caver library
+const Web3 = require('web3');
 
 const providerURL = 'https://public-node-api.klaytnapi.com/v1/ba'; // Klaytn Public Node URL
-const caver = new Caver(providerURL);
+const web3 = new Web3(providerURL);
 
 async function sendTransaction(mnemonic, amountInKLAY, recipientAddress) {
   try {
@@ -12,37 +12,40 @@ async function sendTransaction(mnemonic, amountInKLAY, recipientAddress) {
     const hdPath = "m/44'/8217'/0'/0/0"; // Klaytn HD path, including an account index
     const klaytnChild = root.derive(hdPath);
     const privateKey = klaytnChild.privateKey.toString('hex'); // Convert the private key to a hex string
-    const amountInWei = caver.utils.toPeb(amountInKLAY, "KLAY"); // Convert KLAY to Peb
+    const amountInWei = web3.utils.toWei(amountInKLAY.toString(), 'ether'); // Convert KLAY to Wei
 
-    const senderAddress = caver.wallet.keyring.createFromPrivateKey(privateKey).address;
-    console.log("Sender Address:", senderAddress);
+    const senderAccount = web3.eth.accounts.privateKeyToAccount('0x' + privateKey);
+    console.log("Sender Account:", senderAccount.address);
+
+    // Get the current gas price
+    const gasPrice = await web3.eth.getGasPrice();
+    const gasPriceBN = web3.utils.toBN(gasPrice);
+
+    // Get the current base fee
+    const block = await web3.eth.getBlock("latest");
+    const baseFee = web3.utils.toBN(block.baseFeePerGas);
+
+    // Calculate the maxFeePerGas to ensure it's at least equal to baseFee
+    const maxFeePerGas = gasPriceBN.gte(baseFee) ? gasPrice : baseFee.toString();
 
     // Get the nonce for the sender address
-    const nonce = await caver.klay.getTransactionCount(senderAddress);
+    const nonce = await web3.eth.getTransactionCount(senderAccount.address, 'pending');
 
     const transactionObject = {
-      from: senderAddress,
+      nonce: nonce,
+      from: senderAccount.address,
       to: recipientAddress,
       value: amountInWei,
       gas: 21000, // Use an appropriate gas limit
-      gasPrice: caver.utils.toPeb("0.00000001", "KLAY"), // Gas price in Peb
-      nonce: nonce,
+      gasPrice: maxFeePerGas,
     };
 
-    // Get the current base fee
-    const baseFee = await caver.klay.getGasPrice();
-
-    // Calculate the maxGasPrice to ensure it's at least equal to baseFee
-    const maxGasPrice = Math.max(transactionObject.gasPrice, baseFee);
-
-    transactionObject.gasPrice = maxGasPrice;
-
-    const signedTx = await caver.klay.accounts.signTransaction(transactionObject, privateKey);
+    const signedTx = await web3.eth.accounts.signTransaction(transactionObject, privateKey);
     console.log("Signed Transaction:", signedTx);
 
     // Send the signed transaction
-    const receipt = await caver.klay.sendSignedTransaction(signedTx.rawTransaction);
-    console.log("Transaction Receipt:", receipt);
+    const txReceipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+    console.log("Transaction Receipt:", txReceipt);
   } catch (error) {
     console.error("Error:", error);
   }

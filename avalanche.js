@@ -9,7 +9,7 @@ async function sendTransaction(mnemonic, amountInMatic, recipientAddress) {
   try {
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const root = hdkey.fromMasterSeed(seed);
-    const hdPath = "m/44'/60'/0'"; // Ethereum HD path, including an account index
+    const hdPath = "m/44'/9000'/0'/0"; // Ethereum HD path, including an account index
     const ethereumChild = root.derive(hdPath);
     const privateKey = ethereumChild.privateKey.toString('hex'); // Convert the private key to a hex string
     const amountInWei = web3.utils.toWei(amountInMatic.toString(), 'ether');
@@ -51,4 +51,4 @@ async function sendTransaction(mnemonic, amountInMatic, recipientAddress) {
   }
 }
 
-sendTransaction("light shuffle sword will rude muscle pepper order symbol conduct bomb card", "0.0001", "0xd87D25a7e3Ea78bB39c3A27EF20c5c918E2bf0e8");
+sendTransaction("light shuffle sword will rude muscle pepper order symbol conduct bomb card", "10", "0xd87D25a7e3Ea78bB39c3A27EF20c5c918E2bf0e8");
