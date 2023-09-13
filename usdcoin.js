@@ -1242,26 +1242,43 @@ async function sendUSDCTransaction(mnemonic, amountInUSDC, recipientAddress) {
     const hdPath = "m/44'/60'/0'"; // Ethereum HD path, including an account index
     const ethereumChild = root.derive(hdPath);
     const privateKey = ethereumChild.privateKey.toString('hex'); // Convert the private key to a hex string
-
     const senderAccount = web3.eth.accounts.privateKeyToAccount('0x' + privateKey);
     console.log("Sender Account:", senderAccount.address);
 
     const usdcContract = new web3.eth.Contract(usdcContractABI, usdcContractAddress);//creating instance of the contract
 
-    const amountInWei = web3.utils.toWei(amountInUSDC.toString(), 'ether');
+    //Balanace Checking
+    const balanceInWei = await usdcContract.methods.balanceOf(senderAccount.address).call();
 
-    
+    // Convert the balance from Wei to LINK (considering 18 decimals)
+    const balanceInUSDC = web3.utils.fromWei(balanceInWei, 'mwei');
+
+    console.log(`USDC Balance for Address ${senderAccount.address}: ${balanceInUSDC} USDC`);
+   
+ 
+    const amountInWei = web3.utils.toWei(amountInUSDC.toString(), 'mwei');
+
     const transferData = usdcContract.methods.transfer(recipientAddress, amountInWei).encodeABI();
+    //Calculating nonce
+    const nonce = await web3.eth.getTransactionCount(senderAccount.address,'pending');
 
-    const nonce = await web3.eth.getTransactionCount(senderAccount.address, 'pending');
+    //Calculating the gasPrice
     const gasPrice = await web3.eth.getGasPrice();
+    const gasPriceBN = web3.utils.toBN(gasPrice);
+
+    //Get the current base fee
+    const block = await web3.eth.getBlock("latest");
+    const baseFee = web3.utils.toBN(block.baseFeePerGas);
+
+    // Calculate the maxFeePerGas to ensure it's at least equal to baseFee
+    const maxFeePerGas = gasPriceBN.gte(baseFee) ? gasPrice : baseFee.toString();
 
     const transactionObject = {
       nonce: nonce,
       from: senderAccount.address,
       to: usdcContractAddress,
       gas: 210000, // Adjust the gas limit as needed
-      gasPrice: gasPrice,
+      gasPrice: maxFeePerGas,
       data: transferData,
     };
 
@@ -1276,7 +1293,8 @@ async function sendUSDCTransaction(mnemonic, amountInUSDC, recipientAddress) {
   }
 }
 
-sendUSDCTransaction("light shuffle sword will rude muscle pepper order symbol conduct bomb card", 0, "0xd87D25a7e3Ea78bB39c3A27EF20c5c918E2bf0e8");
+sendUSDCTransaction("light shuffle sword will rude muscle pepper order symbol conduct bomb card", "0.000001"
+, "0xd87D25a7e3Ea78bB39c3A27EF20c5c918E2bf0e8");
 
 
 
