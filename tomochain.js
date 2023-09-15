@@ -19,8 +19,6 @@ async function sendTransaction(mnemonic, amountInTomo, recipientAddress) {
 
     // Get the current gas price
     const gasPrice = await web3.eth.getGasPrice();
-    const gasPriceBN = web3.utils.toBN(gasPrice);
-
     // Get the nonce for the sender address
     const nonce = await web3.eth.getTransactionCount(senderAccount.address, 'pending');
 

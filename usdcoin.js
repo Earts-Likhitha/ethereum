@@ -1250,7 +1250,7 @@ async function sendUSDCTransaction(mnemonic, amountInUSDC, recipientAddress) {
     //Balanace Checking
     const balanceInWei = await usdcContract.methods.balanceOf(senderAccount.address).call();
 
-    // Convert the balance from Wei to LINK (considering 18 decimals)
+    // Convert the balance from Wei to USDC (considering 6 decimals)
     const balanceInUSDC = web3.utils.fromWei(balanceInWei, 'mwei');
 
     console.log(`USDC Balance for Address ${senderAccount.address}: ${balanceInUSDC} USDC`);

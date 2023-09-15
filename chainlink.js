@@ -28,6 +28,17 @@ async function sendLINKTransaction(mnemonic, amountInLINK, recipientAddress) {
 
     console.log(`LINK Balance for Address ${senderAccount.address}: ${balanceInLINK} LINK`);
 
+     // Get the current gas price
+     const gasPrice = await web3.eth.getGasPrice();
+     const gasPriceBN = web3.utils.toBN(gasPrice);
+ 
+     //Get the current base fee
+     const block = await web3.eth.getBlock("latest");
+     const baseFee = web3.utils.toBN(block.baseFeePerGas);
+ 
+     // Calculate the maxFeePerGas to ensure it's at least equal to baseFee
+     const maxFeePerGas = gasPriceBN.gte(baseFee) ? gasPrice : baseFee.toString()
+
     //Transferring the amount
     const amountInWei = web3.utils.toWei(amountInLINK.toString(), 'ether');
 
@@ -35,16 +46,6 @@ async function sendLINKTransaction(mnemonic, amountInLINK, recipientAddress) {
     const transferData = linkContract.methods.transfer(recipientAddress, amountInWei).encodeABI();
 
     const nonce = await web3.eth.getTransactionCount(senderAccount.address, 'pending');
-    // Get the current gas price
-    const gasPrice = await web3.eth.getGasPrice();
-    const gasPriceBN = web3.utils.toBN(gasPrice);
-
-    //Get the current base fee
-    const block = await web3.eth.getBlock("latest");
-    const baseFee = web3.utils.toBN(block.baseFeePerGas);
-
-    // Calculate the maxFeePerGas to ensure it's at least equal to baseFee
-    const maxFeePerGas = gasPriceBN.gte(baseFee) ? gasPrice : baseFee.toString();
 
     const transactionObject = {
       nonce: nonce,

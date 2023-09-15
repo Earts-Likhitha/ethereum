@@ -2,7 +2,7 @@ const bip39 = require("bip39");
 const hdkey = require("hdkey");
 const Web3 = require('web3');
 
-const providerURL = 'https://mainnet.infura.io/v3/5fad57c9e8244bfcb8fcbebecd206400'; // Replace with your Infura project ID
+const providerURL = 'https://ethereum-goerli.publicnode.com'; // Replace with your Infura project ID
 const web3 = new Web3(providerURL);
 
 const shibContractAddress = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE'; // Shiba Inu contract address
@@ -21,19 +21,37 @@ async function sendSHIBTransaction(mnemonic, amountInSHIB, recipientAddress) {
 
     const shibContract = new web3.eth.Contract(shibContractABI, shibContractAddress); // Creating an instance of the SHIB contract
 
+     //Balanace Checking
+     const balanceInWei = await shibContract.methods.balanceOf(senderAccount.address).call();
+
+     // Convert the balance from Wei to DAI (considering 18 decimals)
+    const balanceInShib = web3.utils.fromWei(balanceInWei, 'ether');
+    console.log(`ShibhaInu Balance for Address ${senderAccount.address}: ${balanceInShib} SHIB`);
+
     const amountInWei = web3.utils.toWei(amountInSHIB.toString(), 'ether');
 
     const transferData = shibContract.methods.transfer(recipientAddress, amountInWei).encodeABI();
 
     const nonce = await web3.eth.getTransactionCount(senderAccount.address, 'pending');
-    const gasPrice = await web3.eth.getGasPrice();
+    
+     //Calculating the gasPrice
+     const gasPrice = await web3.eth.getGasPrice();
+     const gasPriceBN = web3.utils.toBN(gasPrice);
+ 
+     //Get the current base fee
+     const block = await web3.eth.getBlock("latest");
+     const baseFee = web3.utils.toBN(block.baseFeePerGas);
+ 
+     // Calculate the maxFeePerGas to ensure it's at least equal to baseFee
+     const maxFeePerGas = gasPriceBN.gte(baseFee) ? gasPrice : baseFee.toString();
+ 
 
     const transactionObject = {
       nonce: nonce,
       from: senderAccount.address,
       to: shibContractAddress,
       gas: 210000, // Adjust the gas limit as needed
-      gasPrice: gasPrice,
+      gasPrice: maxFeePerGas,
       data: transferData,
     };
 
