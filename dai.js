@@ -29,6 +29,7 @@ async function sendDAITransaction(mnemonic, amountInDAI, recipientAddress) {
      // Convert the balance from Wei to DAI (considering 18 decimals)
     const balanceInDai = web3.utils.fromWei(balanceInWei, 'ether');
     console.log(`DAI Balance for Address ${senderAccount.address}: ${balanceInDai} DAI`);
+    return
  
 
     // Convert the amount to the appropriate token units (wei)

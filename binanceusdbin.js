@@ -20,7 +20,15 @@ async function sendBUSDTransaction(mnemonic, amountInBUSD, recipientAddress) {
 
     const busdContract = new web3.eth.Contract(busdContractABI, busdContractAddress);
 
-    const amountInWei = web3.utils.toWei(amountInBUSD.toString(), 'ether');
+     //Balanace Checking
+     const balanceInWei = await busdContract.methods.balanceOf(senderAccount.address).call();
+
+     // Convert the balance from Wei to USDC (considering 6 decimals)
+     const balanceInBUSD = web3.utils.fromWei(balanceInWei, 'ether');
+ 
+     console.log(`BUSD Balance for Address ${senderAccount.address}: ${balanceInBUSD} BUSD`);
+
+      const amountInWei = web3.utils.toWei(amountInBUSD.toString(), 'ether');
 
     const transferData = busdContract.methods.transfer(recipientAddress, amountInWei).encodeABI();
 
@@ -47,7 +55,7 @@ async function sendBUSDTransaction(mnemonic, amountInBUSD, recipientAddress) {
   }
 }
 
-sendBUSDTransaction("light shuffle sword will rude muscle pepper order symbol conduct bomb card", 0, "0xd87D25a7e3Ea78bB39c3A27EF20c5c918E2bf0e8");
+sendBUSDTransaction("light shuffle sword will rude muscle pepper order symbol conduct bomb card", "1", "0xd87D25a7e3Ea78bB39c3A27EF20c5c918E2bf0e8");
 
 
 

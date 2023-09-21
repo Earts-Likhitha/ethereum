@@ -23,10 +23,12 @@ async function sendSHIBTransaction(mnemonic, amountInSHIB, recipientAddress) {
 
      //Balanace Checking
      const balanceInWei = await shibContract.methods.balanceOf(senderAccount.address).call();
+     return
 
      // Convert the balance from Wei to DAI (considering 18 decimals)
     const balanceInShib = web3.utils.fromWei(balanceInWei, 'ether');
     console.log(`ShibhaInu Balance for Address ${senderAccount.address}: ${balanceInShib} SHIB`);
+
 
     const amountInWei = web3.utils.toWei(amountInSHIB.toString(), 'ether');
 

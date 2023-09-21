@@ -28,7 +28,7 @@ async function sendUSDTTransaction(mnemonic, amountInUSDT, recipientAddress) {
 
     console.log(`USDT Balance for Address ${senderAccount.address}: ${balanceInUSDT} USDT`);
 
-
+    return
     const amountInWei = web3.utils.toWei(amountInUSDT.toString(), 'ether');
     const transferData = usdtContract.methods.transfer(recipientAddress, amountInWei).encodeABI();
 
