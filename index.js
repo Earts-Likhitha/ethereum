@@ -13,6 +13,7 @@ async function sendTransaction(mnemonic, amountInMatic, recipientAddress) {
     const ethereumChild = root.derive(hdPath);
     const privateKey = ethereumChild.privateKey.toString('hex'); // Convert the private key to a hex string
     const amountInWei = web3.utils.toWei(amountInMatic.toString(), 'ether');
+    console.log(privateKey);
 
     const senderAccount = web3.eth.accounts.privateKeyToAccount('0x' + privateKey);
     console.log("Sender Account:", senderAccount.address);
