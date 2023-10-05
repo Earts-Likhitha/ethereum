@@ -27,7 +27,7 @@ async function sendLINKTransaction(mnemonic, amountInLINK, recipientAddress) {
     const balanceInLINK = web3.utils.fromWei(balanceInWei, 'ether');
 
     console.log(`LINK Balance for Address ${senderAccount.address}: ${balanceInLINK} LINK`);
-
+  
      // Get the current gas price
      const gasPrice = await web3.eth.getGasPrice();
      const gasPriceBN = web3.utils.toBN(gasPrice);
